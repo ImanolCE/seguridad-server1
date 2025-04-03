@@ -11,26 +11,31 @@ require('dotenv').config();
 
 const server = express();
 
-// Reemplaza todo el bloque de CORS con esto:
-const corsOptions = {
-    origin: [
-      'https://logs-frontend-2.onrender.com',
-      'http://localhost:3000'
-    ],
+// Configuración CORS para producción
+  
+  const corsOptions = {
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'https://logs-frontend-2.onrender.com',
+        'http://localhost:3000'
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.error('Bloqueado por CORS:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 200
   };
   
+  // Aplica CORS antes de otros middlewares
   server.use(cors(corsOptions));
-  server.options('*', cors(corsOptions)); // Preflight
+  server.options('*', cors(corsOptions)); // Habilitar preflight para todas las rutas
 
-  server.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://logs-frontend-2.onrender.com');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    next();
-  });
 
 // Verifica que JWT_SECRET esté disponible
 const JWT_SECRET = process.env.JWT_SECRET || 'uteq';
@@ -68,12 +73,10 @@ if (!admin.apps.length) {
     admin.app();
 }
 
-
-
-
 // Importar rutas correctamente
 const routes = require("./routes");
 
+server.use(bodyParser.json());
 // Aplicar el limitador a todas las rutas
 server.use(limiter);
 
@@ -84,8 +87,6 @@ server.use(limiter);
         credentials: true,
     })
 ); */
-
-server.use(limiter);
 
 
 // Winston para logs
@@ -99,7 +100,7 @@ const logger = winston.createLogger({
     ],
 });
 
-server.use(bodyParser.json());
+
 const db = admin.firestore();
 
 // Middleware para registrar logs
