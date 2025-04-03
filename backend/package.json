@@ -4,9 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
-    "server1": "cross-env PORT=3011 node server.js",
-    "server2": "cross-env PORT=3022 node server.js"
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
