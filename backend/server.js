@@ -13,26 +13,19 @@ const server = express();
 
 // Configuración CORS para producción
   
-  const corsOptions = {
-    origin: (origin, callback) => {
-      const allowedOrigins = [
-        'https://logs-frontend-2.onrender.com',
-        'http://localhost:3000'
-      ];
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.error('Bloqueado por CORS:', origin);
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+const corsOptions = {
+    origin: [
+      'https://logs-frontend-2.onrender.com',
+      'http://localhost:3000'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    optionsSuccessStatus: 200
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   };
   
-  // Aplica CORS antes de otros middlewares
+  // Aplica CORS de esta forma específica
   server.use(cors(corsOptions));
   server.options('*', cors(corsOptions)); // Habilitar preflight para todas las rutas
 
