@@ -23,7 +23,15 @@ const limiter = ratelimit({
 });
 
 
-const serviceAccount = require("./config/firestore.json");
+//const serviceAccount = require("./config/firestore.json");
+const serviceAccount = {
+    type: "service_account",
+    project_id: process.env.FIREBASE_PROJECT_ID,
+    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+    // otros campos necesarios...
+  };
+
 // Inicializa Firebase solo si no ha sido inicializado previamente
 if (!admin.apps.length) {
     admin.initializeApp({
@@ -50,6 +58,7 @@ server.use(
 );
 
 server.use(limiter);
+
 
 // Winston para logs
 const logger = winston.createLogger({
@@ -81,14 +90,15 @@ server.use((req, res, next) => {
         const logLevel = statusCode >= 400 ? 'error' : 'info';
         const responseTime = Date.now() - startTime;
         const logData = {
-            logLevel: logLevel,
-            timestamp: new Date(),
+            logLevel: statusCode >= 400 ? 'error' : 'info',
+            timestamp: admin.firestore.FieldValue.serverTimestamp(), // Usar timestamp del servidor
             method: req.method,
             url: req.url,
             path: req.path,
             query: req.query,
             params: req.params,
             status: statusCode || res.statusCode,
+            server: 'server1', // Identificador del servidor
             responseTime: responseTime,
             ip: req.ip || req.connection.remoteAddress, 
             userAgent: req.get('User-Agent'),

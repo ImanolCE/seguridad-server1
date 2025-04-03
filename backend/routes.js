@@ -69,12 +69,16 @@ router.post('/login', async (req, res) => {
 // para registrar logs en Firestore
 const logEvent = async (eventType, email, status, message, logData) => {
     try {
-            await db.collection('logs').add({
+        await db.collection('logs').add({
             eventType,
             email,
             status,
             message,
-            timestamp: new Date().toISOString()
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            logLevel: status >= 400 ? 'error' : 'info', // Automático basado en status
+            responseTime: 0, // Ajustar según necesidad
+            server: 'server1', // Definir según servidor
+            method: 'POST' // O el método correspondiente
         });
         console.log("Log guardado correctamente");
     } catch (error) {
@@ -203,6 +207,7 @@ router.get("/verify-token", (req, res) => {
         res.json({ message: "Token válido", user: decoded });
     });
 });
+
 
 
 
