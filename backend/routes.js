@@ -10,61 +10,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'uteq';
 
 console.debug('Using JWT secret: ' + JWT_SECRET);
 
-// **Registro de usuario**
-/* router.post('/register', async (req, res) => {
-    const { email, username, password } = req.body;
-    if (!email || !password || !username) {
-        return res.status(400).json({ message: 'Missing fields' });
-    }
-
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const secret = speakeasy.generateSecret({ length: 20 });
-
-        await db.collection('users').add({
-            email,
-            username,
-            password: hashedPassword,
-            mfasecret: secret.base32
-        });
-
-        res.status(201).json({ message: 'User registered', secret: secret.otpauth_url });
-    } catch (error) {
-        res.status(500).json({ message: 'Error registering user', error: error.message });
-    }
-});
-
-// **Login de usuario**
-router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    
-    if (!email || !password) {
-        return res.status(400).json({ statusCode: 400, message: "Campos requeridos" });
-    }
-
-    try {
-        const userSnapshot = await db.collection('users').where('email', '==', email).get();
-
-        if (userSnapshot.empty) {
-            return res.status(401).json({ statusCode: 401, message: "Las credenciales son incorrectas" });
-        }
-
-        const user = userSnapshot.docs[0].data();
-        const passwordMatch = await bcrypt.compare(password, user.password);
-
-        if (!passwordMatch) {
-            return res.status(401).json({ statusCode: 401, message: "Las credenciales son incorrectas" });
-        }
-
-        const token = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: '1h' });
-        res.json({ message: 'Login exitoso', token });
-
-    } catch (error) {
-        res.status(500).json({ message: 'Error en el login', error: error.message });
-    }
-}); */
-
-
 
 // para registrar logs en Firestore
 const logEvent = async (eventType, email, status, message, logData) => {

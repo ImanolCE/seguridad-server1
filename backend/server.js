@@ -9,6 +9,29 @@ const bcrypt = require("bcrypt");
 
 require('dotenv').config();
 
+const server = express();
+
+// Reemplaza todo el bloque de CORS con esto:
+const corsOptions = {
+    origin: [
+      'https://logs-frontend-2.onrender.com',
+      'http://localhost:3000'
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  };
+  
+  server.use(cors(corsOptions));
+  server.options('*', cors(corsOptions)); // Preflight
+
+  server.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://logs-frontend-2.onrender.com');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    next();
+  });
+
 // Verifica que JWT_SECRET esté disponible
 const JWT_SECRET = process.env.JWT_SECRET || 'uteq';
 
@@ -45,21 +68,22 @@ if (!admin.apps.length) {
     admin.app();
 }
 
+
+
+
 // Importar rutas correctamente
 const routes = require("./routes");
-
-const server = express();
 
 // Aplicar el limitador a todas las rutas
 server.use(limiter);
 
 // Middlewares
-server.use(
+/* server.use(
     cors({
         origin: 'http://localhost:3000',
         credentials: true,
     })
-);
+); */
 
 server.use(limiter);
 
