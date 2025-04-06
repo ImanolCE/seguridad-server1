@@ -118,21 +118,6 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        // Validación mejorada
-        if (!email?.match(/^\S+@\S+\.\S+$/)) {
-            return res.status(400).json({
-            success: false,
-            message: "Formato de email inválido"
-            });
-        }
-    
-        if (password.length < 6) {
-            return res.status(400).json({
-            success: false,
-            message: "La contraseña debe tener al menos 6 caracteres"
-            });
-        }
-
         // Verificar si el usuario ya existe
         const userExists = await db.collection('usuarios').doc(email).get();
         if (userExists.exists) {
@@ -175,7 +160,7 @@ router.post('/register', async (req, res) => {
   router.post('/verify-otp', async (req, res) => {
     try {
         const { email, token } = req.body;
-
+        
         
         // Buscar el usuario en Firebase Firestore
         const userSnapshot = await db.collection("usuarios").doc(email).get();
