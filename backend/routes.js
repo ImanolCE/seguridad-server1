@@ -76,11 +76,17 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign(
             { 
                 email: user.email,
-                username: user.username 
             }, 
             JWT_SECRET, 
             { expiresIn: '1h' }
         );
+
+        res.json({
+            success: true,
+            message: "Autenticación exitosa",
+            token: token,
+            requiresMFA: true
+            });
 
         await logEvent('login', email, 200, 'Inicio de sesión exitoso');
         
@@ -88,12 +94,6 @@ router.post('/login', async (req, res) => {
         res.setHeader('Access-Control-Allow-Origin', 'https://logs-frontend-2.onrender.com');
         res.setHeader('Access-Control-Allow-Credentials', 'true');
 
-        res.json({
-        success: true,
-        message: "Autenticación exitosa",
-        token: token,
-        requiresMFA: true
-        });
 
     } catch (error) {
         console.error("Error en login:", error);
@@ -160,6 +160,7 @@ router.post('/register', async (req, res) => {
   router.post('/verify-otp', async (req, res) => {
     try {
         const { email, token } = req.body;
+
         
         // Buscar el usuario en Firebase Firestore
         const userSnapshot = await db.collection("usuarios").doc(email).get();
