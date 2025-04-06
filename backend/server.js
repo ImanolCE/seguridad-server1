@@ -6,6 +6,8 @@ const bodyParser = require('body-parser');
 const winston = require('winston');
 const speakeasy = require('speakeasy');
 const bcrypt = require("bcrypt");
+const rateLimit = require('express-rate-limit');
+
 
 require('dotenv').config();
 
