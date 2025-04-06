@@ -14,20 +14,23 @@ const server = express();
 // Configuración CORS para producción
   
 const corsOptions = {
-    origin: [
-      'https://logs-frontend-2.onrender.com',
-      'http://localhost:3000'
-    ],
-    credentials: true,
+    origin: ['https://logs-frontend-2.onrender.com', 'http://localhost:3000'],
+    credentials: true, // Habilita credenciales
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    preflightContinue: false,
-    optionsSuccessStatus: 204
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    optionsSuccessStatus: 200
   };
   
-  // Aplica CORS de esta forma específica
+  // Remueve los headers manuales y usa solo:
   server.use(cors(corsOptions));
-  server.options('*', cors(corsOptions)); // Habilitar preflight para todas las rutas
+
+  server.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://logs-frontend-2.onrender.com');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    next();
+  });
+
 
 
 // Verifica que JWT_SECRET esté disponible
