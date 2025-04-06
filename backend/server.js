@@ -11,43 +11,42 @@ require('dotenv').config();
 
 const server = express();
 
-// Configuración CORS para producción
-  
+// Configuración CORS
 const corsOptions = {
-    origin: ['https://logs-frontend-2.onrender.com', 'http://localhost:3000'],
-    credentials: true, // Habilita credenciales
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-    optionsSuccessStatus: 200
-  };
-  
-  // Remueve los headers manuales y usa solo:
-  server.use(cors(corsOptions));
+  origin: ['https://logs-frontend-2.onrender.com', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  optionsSuccessStatus: 204
+};
 
-  server.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://logs-frontend-2.onrender.com');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    next();
-  });
+server.use(cors(corsOptions));
+server.use(bodyParser.json());
 
+// Rate Limiter
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: 'Too many requests',
+  skip: (req) => req.method === 'OPTIONS'
+});
 
+server.use(limiter);
+
+// Manejo explícito para OPTIONS
+server.options('*', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://logs-frontend-2.onrender.com');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.status(204).end();
+});
 
 // Verifica que JWT_SECRET esté disponible
 const JWT_SECRET = process.env.JWT_SECRET || 'uteq';
 
 const PORT = process.env.PORT || 3001; 
 
-// para limitar las peticiones que llegan
-const ratelimit = require('express-rate-limit');
-const limiter = ratelimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP 100 request per windows
-    message : 'Too many request from this IP, please try again after an hour'
-});
 
-
-//const serviceAccount = require("./config/firestore.json");
 const serviceAccount = {
     type: "service_account",
     project_id: process.env.FIREBASE_PROJECT_ID,
@@ -71,18 +70,6 @@ if (!admin.apps.length) {
 
 // Importar rutas correctamente
 const routes = require("./routes");
-
-server.use(bodyParser.json());
-// Aplicar el limitador a todas las rutas
-server.use(limiter);
-
-// Middlewares
-/* server.use(
-    cors({
-        origin: 'http://localhost:3000',
-        credentials: true,
-    })
-); */
 
 
 // Winston para logs
